@@ -75,8 +75,6 @@ let move location direction =
 let moveAll directions =
     Seq.fold move Locations.Default directions
 
-let manhattanDistance (x, y) = abs x + abs y
-
 let closest set1 set2 =
     let common = Set.intersect set1 set2
 
