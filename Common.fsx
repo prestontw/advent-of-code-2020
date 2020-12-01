@@ -5,3 +5,7 @@ let keysToSet m =
 
 let digits (i: int) =
     i |> string |> Seq.map (fun i -> int i - int '0')
+
+let lines (i: string) = i.Split '\n'
+
+let commas (i: string) = i.Split ','
