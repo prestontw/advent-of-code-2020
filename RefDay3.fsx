@@ -110,4 +110,4 @@ let part2 (input: string) =
     |> Set.toArray
     |> Array.map (fun point -> s1.[point] + s2.[point])
     |> Array.sort
-    |> fun a -> a.[0]
+    |> Array.item 0
