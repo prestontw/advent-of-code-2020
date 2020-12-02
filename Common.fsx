@@ -9,3 +9,7 @@ let digits (i: int) =
 let lines (i: string) = i.Split '\n'
 
 let commas (i: string) = i.Split ','
+
+let spaces (i: string) = i.Split ' '
+
+let xor a b = (a && not b) || (not a && b)
