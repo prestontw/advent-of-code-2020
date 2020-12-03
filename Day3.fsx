@@ -3,15 +3,16 @@ open Common
 
 let parse = lines
 
-let trees right (input: string array) =
+let trees right (input: string array): uint64 =
     input
     |> Array.indexed
     |> Array.map (fun (i, line) -> line.[right * i % line.Length])
     |> Array.skip 1
     |> Array.filter (fun c -> c = '#')
     |> Array.length
+    |> uint64
 
-let downTrees (input: string array) =
+let downTrees (input: string array): uint64 =
     input
     |> Array.indexed
     |> Array.filter (fun (i, _) -> i % 2 = 0)
@@ -19,6 +20,7 @@ let downTrees (input: string array) =
     |> Array.skip 1
     |> Array.filter (fun c -> c = '#')
     |> Array.length
+    |> uint64
 
 let part1 input = input |> parse |> trees 3
 
