@@ -1,3 +1,5 @@
+open System.Text.RegularExpressions
+
 let manhattanDistance (x, y) = abs x + abs y
 
 let keysToSet m =
@@ -30,3 +32,23 @@ let memoize f =
             let result = f input
             savedResults := Map.add input result !savedResults
             result
+
+let extractValues regex str =
+    let attempt = Regex(regex).Match str
+    if attempt.Success then
+        attempt.Groups
+        |> Seq.map (fun x -> x.Value)
+        |> Seq.skip 1
+        |> Some
+    else
+        None
+
+let extractNamedValues regex str =
+    let attempt = Regex(regex).Match str
+    if attempt.Success then
+        attempt.Groups
+        |> Seq.map (fun x -> x.Name, x.Value)
+        |> Seq.skip 1
+        |> Some
+    else
+        None
