@@ -13,3 +13,20 @@ let commas (i: string) = i.Split ','
 let spaces (i: string) = i.Split ' '
 
 let xor a b = (a && not b) || (not a && b)
+
+/// Memoize the function `f`.
+/// ```
+/// let rec fib n =
+///     if n = 0 || n = 1 then 1 else fastFib (n - 1) + fastFib (n - 2)
+/// and fastFib = memoize fib
+/// ```
+let memoize f =
+    let savedResults = ref Map.empty
+    fun input ->
+        match Map.tryFind input !savedResults with
+        | Some result -> result
+        | None ->
+            printf "computing from scratch! %A\n" input
+            let result = f input
+            savedResults := Map.add input result !savedResults
+            result
