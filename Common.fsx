@@ -21,6 +21,9 @@ let blankLines (i: string) =
 
     last :: groups
 
+let orderedBlankLines (i: string) =
+    i |> blankLines |> List.map List.rev |> List.rev
+
 let commas (i: string) = i.Split ','
 
 let spaces (i: string) = i.Split ' '
