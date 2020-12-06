@@ -1,6 +1,7 @@
 #load "Common.fsx"
 #load "Inputs.fsx"
 open Common
+open System.Text.RegularExpressions
 
 let parse input =
     let mutable ret = List.empty
@@ -37,41 +38,27 @@ let eyr (input: string) =
     let i = int input
     input.Length = 4 && i >= 2020 && i <= 2030
 
-let numbers = [ '0' .. '9' ]
-let alpha = [ 'a' .. 'f' ]
+let hclReg = Regex("#(?:[a-f]|[0-9]){6}")
 
-let hcl (input: string) =
-    input.[0] = '#'
-    && input.[1..]
-       |> String.forall (fun c -> List.contains c numbers || List.contains c alpha)
+let hcl (input: string) = hclReg.IsMatch input
+
+let hgtReg = "(\d*)(in|cm)"
 
 let hgt (input: string) =
-    let cm = input.Split "cm"
-    if cm.Length = 2 then
-        let nums = cm.[0] |> int
-        cm.[1].Length = 0 && nums >= 150 && nums <= 193
-    else
-        let possible = input.Split "in"
-        possible.Length = 2
-        && possible.[1].Length = 0
-        && int possible.[0] >= 59
-        && int possible.[0] <= 76
+    let res = extractValues hgtReg input
+    match res with
+    | Some s ->
+        let [ height; metric ] = s |> Seq.toList
+        let nums = height |> int
+        if metric = "cm" then nums >= 150 && nums <= 193 else nums >= 59 && nums <= 76
+    | None -> false
 
-let eyecolors =
-    [ "amb"
-      "blu"
-      "brn"
-      "gry"
-      "grn"
-      "hzl"
-      "oth" ]
+let eyecolors = Regex("(?:amb|blu|brn|gry|grn|hzl|oth)")
 
-let ecl (input: string) = List.contains input eyecolors
+let ecl (input: string) = eyecolors.IsMatch input
 
-let pid (input: string) =
-    input.Length = 9
-    && String.forall (fun c -> List.contains c numbers) input
-// let part2 input = input |> parse
+let pidReg = Regex("^\d{9}$")
+let pid (input: string) = pidReg.IsMatch input
 
 let valid2 (m: Map<_, _>) =
     let possible =
