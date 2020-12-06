@@ -2,25 +2,34 @@
 #load "Inputs.fsx"
 open Common
 
-let parse input = input |> lines |> Array.map spaces
+let line = "(\d*)-(\d*) (.): (\w*)"
 
-let valid (line: string array) =
-    let [| minimum; maximum |] = line.[0].Split('-') |> Array.map int
-    let celebrity = line.[1].[0]
+let parse input =
+    input
+    |> lines
+    |> Array.choose (extractValues line)
+
+let valid (line: string seq) =
+    let [| minimum; maximum; celebrity; word |] = line |> Seq.toArray
+    let celebrity = celebrity.[0]
+    let minimum = minimum |> int
+    let maximum = maximum |> int
 
     let numTimes =
-        line.[2]
+        word
         |> Seq.filter (fun c -> c = celebrity)
         |> Seq.length
 
     numTimes >= minimum && numTimes <= maximum
 
-let exactlyOnce (line: string array) =
-    let [| firstLoc; otherLoc |] = line.[0].Split('-') |> Array.map int
-    let celebrity = line.[1].[0]
+let exactlyOnce (line: string seq) =
+    let [| firstLoc; otherLoc; celebrity; word |] = line |> Seq.toArray
+    let celebrity = celebrity.[0]
+    let firstLoc = firstLoc |> int
+    let otherLoc = otherLoc |> int
 
-    let firstCandidate = line.[2].[firstLoc - 1]
-    let secondCandidate = line.[2].[otherLoc - 1]
+    let firstCandidate = word.[firstLoc - 1]
+    let secondCandidate = word.[otherLoc - 1]
 
     xor (celebrity = firstCandidate) (celebrity = secondCandidate)
 
