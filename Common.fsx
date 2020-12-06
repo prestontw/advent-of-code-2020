@@ -10,6 +10,17 @@ let digits (i: int) =
 
 let lines (i: string) = i.Split '\n'
 
+/// This returns in reverse order
+let blankLines (i: string) =
+    let (groups, last) =
+        i
+        |> lines
+        |> Array.fold (fun (groups, currentGroup) line ->
+            if line.Length = 0 then (currentGroup :: groups, List.empty) else (groups, line :: currentGroup))
+               (List.empty, List.empty)
+
+    last :: groups
+
 let commas (i: string) = i.Split ','
 
 let spaces (i: string) = i.Split ' '

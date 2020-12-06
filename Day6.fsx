@@ -2,16 +2,7 @@
 #load "Inputs.fsx"
 open Common
 
-let parse input =
-    let mutable ret = List.empty
-    let mutable current = List.empty
-    for line in (input |> lines) do
-        if line.Length = 0 then
-            ret <- current :: ret
-            current <- List.empty
-        else
-            current <- line :: current
-    current :: ret
+let parse = blankLines
 
 let groupAnswers (input: string list) =
     let mutable set = Set.empty
