@@ -36,10 +36,8 @@ let nextGen row column (a: Space [] []) =
             |> Option.bind (Array.tryItem (column + colDiff))
 
         match candidate with
-        | Some Empty
-        | Some Occupied -> candidate
-        | None -> None
         | Some Floor -> neighbor (rowDiff + unitX) (colDiff + unitY) (unitX, unitY)
+        | a -> a
 
     let neighbors =
         offsets
