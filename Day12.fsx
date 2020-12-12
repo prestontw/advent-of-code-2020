@@ -28,9 +28,13 @@ let angleToUnit =
     | 90 -> 0, 1
     | 180 -> -1, 0
     | 270 -> 0, -1
-    | x ->
-        printf "%d" x
-        (0, 0)
+
+let rotateAround offsetX offsetY angle =
+    match angle with
+    | 0 -> offsetX, offsetY
+    | 90 -> offsetY, -offsetX
+    | 180 -> -offsetX, -offsetY
+    | 270 -> -offsetY, offsetX
 
 let parse input =
     input
@@ -57,11 +61,37 @@ let move x y currenHeading instruction times =
         let newHeading = (currenHeading - times + 360) % 360
         x, y, newHeading
 
+let moveWithPoint x y wpx wpy instruction times =
+    match instruction with
+    | 'F' -> x + wpx * times, y + wpy * times, wpx, wpy
+    | 'N'
+    | 'S'
+    | 'E'
+    | 'W' ->
+        let (deltaX, deltaY) =
+            instruction |> charToDirection |> directionToUnit
+
+        (x, y, wpx + deltaX * times, wpy + deltaY * times)
+    | 'L' ->
+        let (rotX, rotY) = rotateAround wpx wpy (360 - times)
+        x, y, rotX, rotY
+    | 'R' ->
+        let (rotX, rotY) = rotateAround wpx wpy (times)
+        x, y, rotX, rotY
+
 let part1 input =
     let parsed = input |> parse
 
-    let (x, y, final) =
+    let (x, y, _final) =
         Array.fold (fun (x, y, heading) (i, times) -> move x y heading i times) (0, 0, 0) parsed
+
+    manhattanDistance (x, y)
+
+let part2 input =
+    let parsed = input |> parse
+
+    let (x, y, _wpx, _wpy) =
+        Array.fold (fun (x, y, wpx, wpy) (i, times) -> moveWithPoint x y wpx wpy i times) (0, 0, 10, 1) parsed
 
     manhattanDistance (x, y)
 
@@ -73,4 +103,4 @@ F7
 R90
 F11"
 
-sample |> part1
+sample |> part2
