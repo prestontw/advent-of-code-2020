@@ -17,7 +17,7 @@ let parse input =
 
 let difference id earliest =
     let nextTime = ((earliest / id) + 1UL) * id
-    nextTime - earliest
+    (nextTime - earliest) % id
 
 let final id minutesWait = id * minutesWait
 
@@ -37,29 +37,50 @@ let part1 input =
 
 let input = Inputs.day13
 
-let part2 input =
+let goals ids =
+    ids
+    |> Seq.indexed
+    |> Seq.choose (fun (idx, i) ->
+        match i with
+        | X -> None
+        | Minutes a -> Some(idx |> uint64, a))
+    |> Array.ofSeq
+
+let product l =
+    l
+    |> Array.choose (fun (idx, id) ->
+        l
+        |> Array.tryFind (fun (otherIdx, otherId) -> id = otherIdx))
+
+let getCurrent idx id multiple = idx * id * multiple - idx
+
+let attempt multiple (idx, id) goals =
+    let current = getCurrent idx id multiple
+    if goals
+       |> Array.forall (fun (offset, id) -> difference id current = offset) then
+        Some current
+    else
+        None
+
+let part2 minimum input =
     let (_, ids) = input |> parse
 
-    let goals =
-        ids
-        |> Seq.indexed
-        |> Seq.choose (fun (idx, i) ->
-            match i with
-            | X -> None
-            | Minutes a -> Some(idx, a))
-        |> Array.ofSeq
+    let goals = ids |> goals
 
-    let rec attempt multiple =
-        let current = (snd goals.[0] |> uint64) * multiple
-        if goals.[1..]
-           |> Array.forall (fun (offset, id) -> difference id current = (offset |> uint64)) then
-            current
-        else
-            attempt (multiple + 1UL)
+    let prods =
+        goals
+        |> product
+        |> Array.maxBy (fun (a, b) -> a * b)
 
-    attempt 1UL
+    let mutable num =
+        if minimum = 0UL then 1UL else (minimum / fst prods / snd prods)
+
+    while (attempt num prods goals) |> Option.isNone do
+        num <- num + 1UL
+
+    attempt num prods goals
 
 let sample = "939
 7,13,x,x,59,x,31,19"
 
-part2 sample
+part2 0UL sample
