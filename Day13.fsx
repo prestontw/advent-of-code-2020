@@ -52,10 +52,6 @@ let goals ids =
             Some((-idx |> bigint) % (_base), _base))
     |> Array.ofSeq
 
-// val gs : (int64 * int64) [] =
-//   [|(0L, 19L); (-9L, 41L); (-13L, 37L); (-19L, 821L); (-32L, 13L); (-36L, 17L);
-//     (-48L, 29L); (-50L, 463L); (-73L, 23L)|]
-
 let bezoutCoefficients a b =
     let oldR, r = a, b
     let oldS, s = bigint.One, bigint.Zero
@@ -89,22 +85,6 @@ let solveSystem (equations: (_ * _) []) =
     equations.[1..]
     |> Array.fold (solvePair) equations.[0]
 
-let product l =
-    l
-    |> Array.choose (fun (idx, id) ->
-        l
-        |> Array.tryFind (fun (otherIdx, otherId) -> id = otherIdx))
-
-let getCurrent idx id multiple = idx * id * multiple - idx
-
-let attempt multiple (idx, id) goals =
-    let current = getCurrent idx id multiple
-    if goals
-       |> Array.forall (fun (offset, id) -> difference id current = offset) then
-        Some current
-    else
-        None
-
 let part2 input =
     let (_, ids) = input |> parse
 
@@ -129,4 +109,4 @@ let t4 = "7
 let t5 = "7
 1789,37,47,1889"
 
-part2 sample
+part2 sample |> inverse
