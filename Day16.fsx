@@ -85,7 +85,25 @@ let ruleIndex rule tickets alreadyUsed =
     possibilities |> Seq.filter validForAll
 
 /// Given possibilities, use process of elimination to arrive at assignments
-let solve constraints = constraints
+let solve constraints =
+    let mutable assignments = Map.empty
+
+    let pending =
+        constraints
+        |> List.map (fun (name, possibilities) -> name, possibilities |> Set.ofList)
+
+    let mutable assigned = Set.empty
+
+    while pending |> List.length <> (assigned |> Set.count) do
+        for (name, possibilities) in pending do
+            let possibilities = Set.difference possibilities assigned
+            if possibilities |> Set.count = 1 then
+                let element = possibilities |> Set.minElement
+                assigned <- Set.add element assigned
+                assignments <- Map.add name element assignments
+
+
+    assignments
 
 let part2 input =
     let { Rules = rules; YourTicket = yourticket; NearbyTickets = nearby } = input |> parse
@@ -96,13 +114,16 @@ let part2 input =
 
     rules
     |> List.map (fun rule -> rule.Name, ruleIndex rule valids Set.empty |> Seq.toList)
+    |> solve,
+    yourticket
 
 
 let calculateSixValues mappings (yourticket: int list) =
     mappings
+    |> Map.toList
     |> List.filter (fun (name: string, _indices) -> name.StartsWith "departure")
-    |> List.map (fun (_name, indices) -> Seq.item 0 indices)
-    |> List.sumBy (fun index -> yourticket.[index])
+    |> List.map snd
+    |> List.fold (fun acc index -> acc * yourticket.[index]) 1
 
 let input = Inputs.day16
 
@@ -131,4 +152,5 @@ nearby tickets:
 15,1,5
 5,14,9"
 
-part2 sample2
+input |> part2
+// |> (fun (mappings, yt) -> calculateSixValues mappings yt)
