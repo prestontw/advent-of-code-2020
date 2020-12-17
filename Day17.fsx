@@ -22,29 +22,33 @@ let parse input =
     |> Array.collect (fun (row, line) ->
         line
         |> Seq.indexed
-        |> Seq.choose (fun (col, charr) -> if charr = '#' then Some(row, col, 0) else None)
+        |> Seq.choose (fun (col, charr) -> if charr = '#' then Some(row, col, 0, 0) else None)
         |> Seq.toArray)
     |> Set.ofArray
 
-let adjacenciesAux (row, col, zed) =
+let adjacenciesAux (row, col, zed, w) =
     let offsets = [ -1; 0; 1 ]
     let mutable ret = []
     for rowDelt in offsets do
         for colDelt in offsets do
             for zedDelt in offsets do
-                if rowDelt = 0 && colDelt = 0 && zedDelt = 0 then
-                    ()
-                else
-                    ret <-
-                        (row + rowDelt, col + colDelt, zed + zedDelt)
-                        :: ret
+                for wDelt in offsets do
+                    if rowDelt = 0
+                       && colDelt = 0
+                       && zedDelt = 0
+                       && wDelt = 0 then
+                        ()
+                    else
+                        ret <-
+                            (row + rowDelt, col + colDelt, zed + zedDelt, w + wDelt)
+                            :: ret
     ret
 
 let adjacancies = memoize adjacenciesAux
 
 let possibleNeighbors actives =
     actives
-    |> Seq.fold (fun (neighbors: Map<(int * int * int), int>) active ->
+    |> Seq.fold (fun neighbors active ->
         adjacancies active
         |> Seq.fold (fun neighbors coordinate ->
             Map.add
