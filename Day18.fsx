@@ -4,14 +4,19 @@ open Common
 
 type Num = uint64
 
+type Operation =
+    | Add
+    | Mult
+
 type Expr<'a> =
-    | Op of ('a -> 'a -> 'a) * Expr<'a> * Expr<'a>
+    | Op of Operation * Expr<'a> * Expr<'a>
     | Atom of 'a
 
 let rec interp =
     function
     | Atom a -> a
-    | Op (op, lhs, rhs) -> op (interp lhs) (interp rhs)
+    | Op (Add, lhs, rhs) -> (interp lhs) + (interp rhs)
+    | Op (Mult, lhs, rhs) -> (interp lhs) * (interp rhs)
 
 let removeBeginParen (s: string) =
     let count =
@@ -42,8 +47,8 @@ let parseLine line =
             | Some lhs -> inner (Some(Op((op |> Option.get), lhs, parens))) None after
             | None -> inner (Some(parens)) None after
         | ")" :: tail -> Option.get lhs, tail
-        | "+" :: tail -> inner lhs (Some(+)) tail
-        | "*" :: tail -> inner lhs (Some(*)) tail
+        | "+" :: tail -> inner lhs (Some(Add)) tail
+        | "*" :: tail -> inner lhs (Some(Mult)) tail
         | num :: tail ->
             let a = num |> uint64 |> Atom
             match lhs with
@@ -52,21 +57,66 @@ let parseLine line =
 
     inner None None line
 
+let infixBindingPower =
+    function
+    | Add -> (3, 4)
+    | Mult -> (1, 2)
 
-let parse input =
+let parseLine2 line =
+    let rec inner remaining minBp =
+
+        let mutable lhs, remaining =
+            match remaining with
+            | "(" :: remaining ->
+                let lhs, remaining = inner remaining 0
+                lhs, remaining |> List.tail
+            | a :: remaining -> (a |> uint64 |> Atom, remaining)
+
+        let mutable shouldContinue = true
+        while shouldContinue do
+
+            let op =
+                match remaining with
+                | []
+                | ")" :: _ ->
+                    shouldContinue <- false
+                    Add
+                | "+" :: _ -> Add
+                | "*" :: _ -> Mult
+
+            let (lbp, rbp) = infixBindingPower op
+            if shouldContinue then
+                if lbp < minBp then
+                    shouldContinue <- false
+                else
+                    let (rhs, newRemaining) = inner (List.tail remaining) rbp
+                    lhs <- Op(op, lhs, rhs)
+                    remaining <- newRemaining
+        lhs, remaining
+
+    inner line 0
+
+let parse f input =
     input
     |> lines
-    |> Array.map (tokenizeLine >> parseLine)
+    |> Array.map (tokenizeLine >> f)
     |> Array.toList
 
 
 let part1 input =
-    input |> parse |> List.sumBy (fst >> interp)
+    input
+    |> parse parseLine
+    |> List.sumBy (fst >> interp)
+
+let part2 input =
+    input
+    |> parse parseLine2
+    |> List.sumBy (fst >> interp)
 
 let input = Inputs.day18
 
 "(1 + 2) * 3 + 4"
 |> tokenizeLine
-|> parseLine
+|> parseLine2
 |> fst
 |> interp
