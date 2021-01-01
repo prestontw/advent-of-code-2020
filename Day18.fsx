@@ -77,12 +77,11 @@ let parseLine2 line =
 
             let op =
                 match remaining with
-                | []
-                | ")" :: _ ->
-                    shouldContinue <- false
-                    Add
                 | "+" :: _ -> Add
                 | "*" :: _ -> Mult
+                | _ ->
+                    shouldContinue <- false
+                    Add
 
             let (lbp, rbp) = infixBindingPower op
             if shouldContinue then
