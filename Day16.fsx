@@ -17,18 +17,20 @@ let ruleRegex = "(.*): (\d*)-(\d*) or (\d*)-(\d*)"
 let parseFields input = input |> commas |> Seq.map int
 
 let parse input =
-    let [ rules; your; nearby ] = input |> orderedBlankLines
+    let [ rules; your; nearby ] = input |> blankLines
 
     let rules =
         rules
-        |> List.choose (fun line ->
-            extractValues ruleRegex line
-            |> Option.map Seq.toList)
+        |> List.choose
+            (fun line ->
+                extractValues ruleRegex line
+                |> Option.map Seq.toList)
 
-        |> List.map (fun [ name; firstLow; firstHigh; secondLow; secondHigh ] ->
-            { Name = name
-              FirstClause = (firstLow |> int, firstHigh |> int)
-              SecondClause = (secondLow |> int, secondHigh |> int) })
+        |> List.map
+            (fun [ name; firstLow; firstHigh; secondLow; secondHigh ] ->
+                { Name = name
+                  FirstClause = (firstLow |> int, firstHigh |> int)
+                  SecondClause = (secondLow |> int, secondHigh |> int) })
 
     let your = your.[1] |> parseFields |> Seq.toList
 
@@ -47,11 +49,9 @@ let checkOutBounds rule value =
         || value > snd rule.SecondClause)
 
 let checkInBounds rule value =
-    (value
-     >= fst rule.FirstClause
+    (value >= fst rule.FirstClause
      && value <= snd rule.FirstClause)
-    || (value
-        >= fst rule.SecondClause
+    || (value >= fst rule.SecondClause
         && value <= snd rule.SecondClause)
 
 /// Return whether any ticket's value is not in the rule ranges
@@ -66,14 +66,17 @@ let invalidTicket rules ticket =
     ticket |> List.choose outsideAll
 
 let part1 input =
-    let { Rules = rules; YourTicket = yourticket; NearbyTickets = nearby } = input |> parse
+    let { Rules = rules
+          YourTicket = yourticket
+          NearbyTickets = nearby } =
+        input |> parse
+
     let invalid = invalidTicket rules
     nearby |> Seq.sumBy (invalid >> List.sum)
 
 let ruleIndex rule tickets alreadyUsed =
     let possibilities =
-        [ 0 .. ((List.head tickets)
-                |> fun l -> List.length l - 1) ]
+        [ 0 .. ((List.head tickets) |> fun l -> List.length l - 1) ]
         |> Set.ofList
         |> fun s -> Set.difference s alreadyUsed
 
@@ -97,6 +100,7 @@ let solve constraints =
     while pending |> List.length <> (assigned |> Set.count) do
         for (name, possibilities) in pending do
             let possibilities = Set.difference possibilities assigned
+
             if possibilities |> Set.count = 1 then
                 let element = possibilities |> Set.minElement
                 assigned <- Set.add element assigned
@@ -106,7 +110,11 @@ let solve constraints =
     assignments
 
 let part2 input =
-    let { Rules = rules; YourTicket = yourticket; NearbyTickets = nearby } = input |> parse
+    let { Rules = rules
+          YourTicket = yourticket
+          NearbyTickets = nearby } =
+        input |> parse
+
     let invalid = invalidTicket rules
 
     let valids =
