@@ -9,3 +9,9 @@ https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-arraymodu
 https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions?redirectedfrom=MSDN
 
 https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference
+
+## Setup
+
+install ionide-paket for nuget package completions
+
+use expecto for testing like I want in Rust
