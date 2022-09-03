@@ -6,6 +6,9 @@ type Opcode =
     | Add
     | Multiply
 
+type Opcode with
+    member _.Num = 3
+
 let intToOpcode =
     function
     | 99 -> Some Halt
@@ -15,6 +18,7 @@ let intToOpcode =
 
 let interp (ops: int array) =
     let mutable index = 0
+
     while ops.[index] <> 99 do
         let op =
             match ops.[index] with
@@ -24,6 +28,7 @@ let interp (ops: int array) =
 
         ops.[ops.[index + 3]] <- op ops.[ops.[index + 1]] ops.[ops.[index + 2]]
         index <- index + 4
+
     ops
 
 let sample = "1,9,10,3,2,3,11,0,99,30,40,50"
@@ -51,9 +56,13 @@ let finalAnswer noun verb = 100 * noun + verb
 let part2 lines =
     let mutable ret = None
     let initial = lines |> parse |> Seq.toArray
-    for i in 0 .. 99 do
-        for j in 0 .. 99 do
+
+    for i in 0..99 do
+        for j in 0..99 do
             let current = Array.copy initial
             let result = replace i j current |> interp |> value
-            if result = 196_907_20 then ret <- Some(i, j)
+
+            if result = 196_907_20 then
+                ret <- Some(i, j)
+
     ret

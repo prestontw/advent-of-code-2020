@@ -1,6 +1,7 @@
 open System
 
-let input = "86608
+let input =
+    "86608
 97271
 51200
 149104
@@ -103,13 +104,17 @@ let input = "86608
 
 let fuelRequiredForModule moduleMass = moduleMass / 3 - 2
 
-let totalFuel (lines: String) =
+let totalFuel (lines: String) : int =
     lines.Split('\n')
     |> Seq.sumBy (int >> fuelRequiredForModule)
 
-let rec fuelForFuel fuelMass =
+let rec fuelForFuel (fuelMass: int) : int =
     let newFuel = fuelRequiredForModule fuelMass
-    if newFuel <= 0 then 0 else newFuel + (fuelForFuel newFuel)
+
+    if newFuel <= 0 then
+        0
+    else
+        newFuel + (fuelForFuel newFuel)
 
 let partTwo (lines: String) =
     lines.Split('\n')
